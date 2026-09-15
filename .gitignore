@@ -1,0 +1,10 @@
+# Raw, unoptimized source photography (kept locally, not deployed)
+/originals/
+
+# Maquette reference files (design reference only, not part of the site)
+Le119_maquette_Canva_import.pptx
+Le119_maquette_reference_desktop.jpg
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
