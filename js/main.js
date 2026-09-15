@@ -135,7 +135,7 @@
       `Message : ${data.message || "-"}`,
     ].join("\n");
 
-    const mailto = `mailto:contact@le119-valenciennes.fr?subject=${encodeURIComponent(
+    const mailto = `mailto:oliviermerz@gmail.com?subject=${encodeURIComponent(
       "Demande de projet — " + data.prenom + " " + data.nom
     )}&body=${encodeURIComponent(bodyLines)}`;
 
@@ -161,12 +161,28 @@
     if (index < 0) index = 0;
     let timer = null;
 
+    /* Navigation par pièce (optionnelle) : un élément .carousel-rooms juste
+       après le carrousel, avec un bouton [data-room] par pièce, saute à la
+       première photo taguée data-room correspondante sur la diapositive. */
+    const roomNav = root.nextElementSibling && root.nextElementSibling.classList.contains("carousel-rooms")
+      ? root.nextElementSibling
+      : null;
+    const roomLinks = roomNav ? Array.from(roomNav.querySelectorAll("[data-room]")) : [];
+    const syncRoomNav = () => {
+      if (!roomLinks.length) return;
+      const activeRoom = slides[index].dataset.room || null;
+      roomLinks.forEach((btn) => {
+        btn.classList.toggle("is-active", !!activeRoom && btn.dataset.room === activeRoom);
+      });
+    };
+
     const show = (next) => {
       slides[index].classList.remove("is-active");
       slides[index].setAttribute("aria-hidden", "true");
       index = (next + slides.length) % slides.length;
       slides[index].classList.add("is-active");
       slides[index].removeAttribute("aria-hidden");
+      syncRoomNav();
     };
     slides.forEach((s, i) => { if (i !== index) s.setAttribute("aria-hidden", "true"); });
 
@@ -187,6 +203,16 @@
     root.addEventListener("focusin", stop);
     root.addEventListener("focusout", start);
 
+    roomLinks.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const targetIndex = slides.findIndex((s) => s.dataset.room === btn.dataset.room);
+        if (targetIndex === -1) return;
+        show(targetIndex);
+        start();
+      });
+    });
+
+    syncRoomNav();
     start();
   });
 })();
