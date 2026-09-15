@@ -61,6 +61,7 @@
   <symbol id="icon-mail" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M3.5 6l8.5 7.5L20.5 6"/></g></symbol>
   <symbol id="icon-whatsapp" viewBox="1.11 1.06 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18l-1.3 3.3L8.2 20A8.5 8.5 0 1 0 5 15.6"/><path d="M9.2 8.6c.2-.5.6-.5 1-.5.3 0 .5 0 .7.5s.7 1.7.7 1.9 0 .3-.2.5c-.2.3-.4.4-.6.6-.2.2-.4.4-.2.8.2.4 1 1.5 2 2.4 1.3 1.1 2.1 1.4 2.5 1.2s.6-.6.8-.8c.2-.2.4-.3.7-.2s1.8.9 2.1 1c.3.2.5.3.5.4 0 .5-.1 1-.4 1.3-.4.4-1.3.8-2.3.6-1.3-.2-3.4-1.3-5-2.9-1.4-1.3-2.4-3-2.7-3.9-.3-.9-.1-1.6.4-2.1z"/></g></symbol>
   <symbol id="icon-calendar" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="10" width="36" height="32" rx="2"/><path d="M6 19h36"/><path d="M15 6v8"/><path d="M33 6v8"/><path d="M15 27h6M15 34h6M27 27h6M27 34h6"/></g></symbol>
+  <symbol id="icon-quote" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4"/><path d="M9 11h6M9 14.5h6M9 17.5h3"/></g></symbol>
   <symbol id="icon-instagram" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><circle cx="12" cy="12" r="4"/><circle cx="17" cy="7" r="0.8" fill="currentColor" stroke="none"/></g></symbol>
   <symbol id="icon-facebook" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M15.5 8.5h-2A2 2 0 0 0 11.5 10.5V21M8.5 13.5h6M4 3.5h16A.5.5 0 0 1 20.5 4v16a.5.5 0 0 1-.5.5H4a.5.5 0 0 1-.5-.5V4a.5.5 0 0 1 .5-.5z"/></symbol>
   <symbol id="icon-linkedin" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="2"/><path d="M7.8 10v6.5M7.8 7.3v.1"/><path d="M11.5 16.5V10M11.5 12.7c0-1.5 1.2-2.7 2.7-2.7 1.5 0 2.3 1 2.3 2.9v3.6"/></g></symbol>
@@ -374,42 +375,62 @@
           <input type="tel" id="f-tel" name="telephone" autocomplete="tel" required>
         </div>
       </div>
+
+      <p class="form-section-title">Détails de l'événement</p>
+
       <div class="form-row">
+        <div class="form-field">
+          <label for="f-date">Date de l'événement *</label>
+          <input type="date" id="f-date" name="date_evenement" required>
+        </div>
         <div class="form-field">
           <label for="f-type">Type d'événement *</label>
           <select id="f-type" name="type_evenement" required>
             <option value="">Sélectionner…</option>
             <option selected>Mariage</option>
             <option>Anniversaire</option>
-            <option>Réception familiale</option>
-            <option>Séminaire / CODIR</option>
-            <option>Team building</option>
-            <option>Cocktail / dîner d'entreprise</option>
-            <option>Autre</option>
+            <option>Baptême</option>
+            <option>Communion</option>
+            <option>Évènement d'entreprise</option>
           </select>
         </div>
-        <div class="form-field">
-          <label for="f-date">Date souhaitée</label>
-          <input type="date" id="f-date" name="date_souhaitee">
-        </div>
       </div>
-      <div class="form-row form-row-3">
+      <div class="form-row form-row-4">
         <div class="form-field">
-          <label for="f-adultes">Nombre d'adultes</label>
-          <input type="number" id="f-adultes" name="nb_adultes" min="0" inputmode="numeric">
+          <label for="f-adultes">NB Adultes *</label>
+          <input type="number" id="f-adultes" name="nb_adultes" min="0" inputmode="numeric" required>
         </div>
         <div class="form-field">
-          <label for="f-enfants">Nombre d'enfants</label>
+          <label for="f-enfants">Enfants (-14 ans)</label>
           <input type="number" id="f-enfants" name="nb_enfants" min="0" inputmode="numeric">
         </div>
         <div class="form-field">
-          <label for="f-horaires">Horaires envisagés</label>
-          <input type="text" id="f-horaires" name="horaires" placeholder="ex. 18h – 2h">
+          <label for="f-bebes">Bébés</label>
+          <input type="number" id="f-bebes" name="nb_bebes" min="0" inputmode="numeric">
+        </div>
+        <div class="form-field">
+          <label for="f-moment">Moment *</label>
+          <select id="f-moment" name="moment" required>
+            <option value="">Sélectionner…</option>
+            <option>Matin</option>
+            <option>Après-midi</option>
+            <option>Soirée</option>
+            <option>Journée</option>
+          </select>
         </div>
       </div>
+
+      <p class="form-section-title">Options</p>
+
+      <div class="form-checkbox-group">
+        <label class="form-checkbox"><input type="checkbox" name="hebergement" value="oui"> Hébergement</label>
+        <label class="form-checkbox"><input type="checkbox" name="dj" value="oui"> DJ</label>
+        <label class="form-checkbox"><input type="checkbox" name="chef_cuisine" value="oui"> Chef de cuisine</label>
+      </div>
+
       <div class="form-field">
-        <label for="f-prestations">Prestations souhaitées</label>
-        <input type="text" id="f-prestations" name="prestations" placeholder="Décoration, fleuriste, DJ…">
+        <label for="f-autre-prestataire">Autre prestataire</label>
+        <input type="text" id="f-autre-prestataire" name="autre_prestataire" placeholder="Décoration, fleuriste, photographe…">
       </div>
       <div class="form-field">
         <label for="f-message">Message</label>
@@ -425,6 +446,10 @@
 </div>
 
 <div class="fab-group">
+  <button type="button" class="fab fab-devis js-open-modal" aria-label="Demander un devis">
+    <svg class="icon" width="18" height="18"><use href="#icon-quote"/></svg>
+    <span>Devis</span>
+  </button>
   <a href="https://calendly.com/oliviermerz" target="_blank" rel="noopener" class="fab fab-calendly" aria-label="Prendre rendez-vous sur Calendly">
     <svg class="icon" width="24" height="24"><use href="#icon-calendar"/></svg>
   </a>

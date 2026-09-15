@@ -108,30 +108,30 @@
     }
   });
 
-  /* Contact form: client-side validation + mailto fallback.
-     Replace with a real backend endpoint (e.g. a Supabase Edge Function) when available. */
+  /* Contact form: submits to Supabase (table demandes_devis, see supabase/schema.sql).
+     Falls back to a mailto with the pre-filled request if the insert fails. */
+  const SUPABASE_URL = "https://curpwqvxsojzgwagwvox.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_rPdju156yStjHFMV8PxBiw_Fk6hSdtg";
+
   const form = document.getElementById("contact-form");
   const status = document.getElementById("form-status");
 
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    form.classList.add("was-validated");
-    if (!form.checkValidity()) {
-      form.reportValidity();
-      return;
-    }
-    const data = Object.fromEntries(new FormData(form).entries());
+  const mailtoFallback = (data) => {
     const bodyLines = [
       `Prénom : ${data.prenom}`,
       `Nom : ${data.nom}`,
       `Email : ${data.email}`,
       `Téléphone : ${data.telephone}`,
+      `Date de l'événement : ${data.date_evenement || "-"}`,
       `Type d'événement : ${data.type_evenement}`,
-      `Date souhaitée : ${data.date_souhaitee || "-"}`,
       `Adultes : ${data.nb_adultes || "-"}`,
-      `Enfants : ${data.nb_enfants || "-"}`,
-      `Horaires : ${data.horaires || "-"}`,
-      `Prestations : ${data.prestations || "-"}`,
+      `Enfants (-14 ans) : ${data.nb_enfants || "-"}`,
+      `Bébés : ${data.nb_bebes || "-"}`,
+      `Moment : ${data.moment || "-"}`,
+      `Hébergement : ${data.hebergement ? "Oui" : "Non"}`,
+      `DJ : ${data.dj ? "Oui" : "Non"}`,
+      `Chef de cuisine : ${data.chef_cuisine ? "Oui" : "Non"}`,
+      `Autre prestataire : ${data.autre_prestataire || "-"}`,
       `Message : ${data.message || "-"}`,
     ].join("\n");
 
@@ -141,10 +141,58 @@
 
     status.textContent = "Ouverture de votre messagerie…";
     window.location.href = mailto;
-    form.reset();
     setTimeout(() => {
       status.textContent = "Merci, votre messagerie s'est ouverte avec votre demande pré-remplie.";
     }, 400);
+  };
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    form.classList.add("was-validated");
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+    const data = Object.fromEntries(new FormData(form).entries());
+    const payload = {
+      prenom: data.prenom,
+      nom: data.nom,
+      email: data.email,
+      telephone: data.telephone,
+      date_evenement: data.date_evenement || null,
+      type_evenement: data.type_evenement,
+      nb_adultes: data.nb_adultes ? Number(data.nb_adultes) : null,
+      nb_enfants: data.nb_enfants ? Number(data.nb_enfants) : null,
+      nb_bebes: data.nb_bebes ? Number(data.nb_bebes) : null,
+      moment: data.moment || null,
+      hebergement: Boolean(data.hebergement),
+      dj: Boolean(data.dj),
+      chef_cuisine: Boolean(data.chef_cuisine),
+      autre_prestataire: data.autre_prestataire || null,
+      message: data.message || null,
+      source_page: window.location.pathname,
+    };
+
+    status.textContent = "Envoi de votre demande…";
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/demandes_devis`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`,
+          Prefer: "return=minimal",
+        },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error("Supabase insert failed: " + res.status);
+      form.reset();
+      status.textContent = "Merci, votre demande a bien été envoyée. Nous revenons vers vous sous 48h ouvrées.";
+    } catch (err) {
+      form.reset();
+      mailtoFallback(data);
+    }
   });
 
   /* Image carousel (bloc 04) */

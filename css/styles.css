@@ -1452,9 +1452,11 @@ h3 { font-size: clamp(19px, 2vw, 23px); line-height: 1.15; }
 
 #contact-form { display: flex; flex-direction: column; gap: 16px; }
 .form-row { display: grid; grid-template-columns: 1fr; gap: 16px; }
-.form-field { display: flex; flex-direction: column; gap: 6px; }
+.form-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .form-field label { font-size: 11px; font-weight: 600; letter-spacing: 0.03em; }
 .form-field input, .form-field select, .form-field textarea {
+  width: 100%;
+  min-width: 0;
   border: 1px solid var(--color-border);
   padding: 12px 14px;
   border-radius: 0;
@@ -1471,10 +1473,22 @@ h3 { font-size: clamp(19px, 2vw, 23px); line-height: 1.15; }
 .form-note { min-height: 18px; font-size: 12.5px; color: var(--color-accent); }
 .form-alt { font-size: 12px; color: var(--color-muted); text-align: center; }
 .form-alt a { text-decoration: underline; }
+.form-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin: 4px 0 -4px;
+}
+.form-checkbox-group { display: flex; flex-wrap: wrap; gap: 10px 24px; }
+.form-checkbox { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+.form-checkbox input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--color-accent); min-height: 0; }
 
 @media (min-width: 560px) {
   .form-row { grid-template-columns: 1fr 1fr; }
   .form-row-3 { grid-template-columns: repeat(3, 1fr); }
+  .form-row-4 { grid-template-columns: repeat(4, 1fr); }
 }
 
 /* ---------- Scroll reveal ---------- */
@@ -1797,14 +1811,15 @@ h3 { font-size: clamp(19px, 2vw, 23px); line-height: 1.15; }
   .guide-grid { grid-template-columns: repeat(3, 1fr); gap: 52px 40px; }
 }
 
-/* ---------- Boutons flottants (WhatsApp / Calendly) ---------- */
+/* ---------- Boutons flottants (Devis / WhatsApp / Calendly) ---------- */
 .fab-group {
   position: fixed;
   right: 16px;
   bottom: 16px;
   z-index: 700;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-end;
   gap: 12px;
 }
 .fab {
@@ -1823,12 +1838,26 @@ h3 { font-size: clamp(19px, 2vw, 23px); line-height: 1.15; }
 .fab-whatsapp:hover { background: #1EBE5A; }
 .fab-calendly { background: #006BFF; }
 .fab-calendly:hover { background: #0057D1; }
+.fab-devis {
+  background: var(--color-accent);
+  width: auto;
+  padding: 0 18px;
+  border-radius: 25px;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.fab-devis:hover { background: var(--color-accent-hover); }
+.fab-devis .icon { width: 18px; height: 18px; }
 .fab .icon { width: 24px; height: 24px; }
 .fab-whatsapp .icon { width: 36px; height: 36px; }
 
 @media (min-width: 768px) {
   .fab-group { right: 24px; bottom: 24px; gap: 14px; }
   .fab { width: 56px; height: 56px; }
+  .fab-devis { width: auto; height: 56px; padding: 0 22px; font-size: 14px; }
   .fab-whatsapp .icon { width: 42px; height: 42px; }
 }
 
