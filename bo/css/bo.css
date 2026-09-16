@@ -307,6 +307,10 @@ h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
 
 .bo-chart svg { display: block; }
 
+.bo-form-group + .bo-form-group { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--bo-border); }
+
+.bo-form-group h3 { margin: 0 0 12px; font-size: 14px; font-weight: 700; }
+
 .bo-funnel {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));

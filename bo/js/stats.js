@@ -12,13 +12,14 @@
   const statDuration = document.getElementById("stat-duration");
   const chartEl = document.getElementById("chart-views");
   const topPagesBody = document.getElementById("top-pages-body");
-  const funnelOpen = document.getElementById("funnel-open");
-  const funnelBounce = document.getElementById("funnel-bounce");
-  const funnelBouncePct = document.getElementById("funnel-bounce-pct");
-  const funnelAbandon = document.getElementById("funnel-abandon");
-  const funnelAbandonPct = document.getElementById("funnel-abandon-pct");
-  const funnelSubmit = document.getElementById("funnel-submit");
-  const funnelSubmitPct = document.getElementById("funnel-submit-pct");
+  const formsFunnelsEl = document.getElementById("forms-funnels");
+
+  /* Nom lisible pour chaque form_name connu (voir js/main.js -> sendFormEvent).
+     Un formulaire pas encore repertorie ici s'affiche quand meme, sous son identifiant technique. */
+  const FORM_LABELS = {
+    devis: "Demande de devis",
+  };
+  const formLabel = (name) => FORM_LABELS[name] || name;
 
   const esc = (value) =>
     String(value ?? "").replace(/[&<>"']/g, (c) => ({
@@ -122,22 +123,55 @@
   };
 
   const renderFunnel = (rows) => {
-    const counts = { open: 0, start: 0, submit: 0 };
+    const byForm = new Map();
     rows.forEach((r) => {
+      const counts = byForm.get(r.form_name) || { open: 0, start: 0, submit: 0 };
       if (counts[r.event_type] !== undefined) counts[r.event_type] += 1;
+      byForm.set(r.form_name, counts);
     });
 
-    const bounce = Math.max(counts.open - counts.start, 0);
-    const abandon = Math.max(counts.start - counts.submit, 0);
-    const pct = (n) => (counts.open ? `${Math.round((n / counts.open) * 100)}% des ouvertures` : "");
+    if (!byForm.size) {
+      formsFunnelsEl.innerHTML = '<p class="bo-state">Aucun formulaire suivi sur cette période.</p>';
+      return;
+    }
 
-    funnelOpen.textContent = counts.open;
-    funnelBounce.textContent = bounce;
-    funnelBouncePct.textContent = pct(bounce);
-    funnelAbandon.textContent = abandon;
-    funnelAbandonPct.textContent = pct(abandon);
-    funnelSubmit.textContent = counts.submit;
-    funnelSubmitPct.textContent = pct(counts.submit);
+    const forms = Array.from(byForm.entries()).sort((a, b) =>
+      formLabel(a[0]).localeCompare(formLabel(b[0]))
+    );
+
+    formsFunnelsEl.innerHTML = forms
+      .map(([formName, counts]) => {
+        const bounce = Math.max(counts.open - counts.start, 0);
+        const abandon = Math.max(counts.start - counts.submit, 0);
+        const pct = (n) => (counts.open ? `${Math.round((n / counts.open) * 100)}% des ouvertures` : "");
+
+        return `
+          <div class="bo-form-group">
+            <h3>${esc(formLabel(formName))}</h3>
+            <div class="bo-funnel">
+              <div class="bo-funnel-step">
+                <p class="bo-funnel-value">${counts.open}</p>
+                <p class="bo-funnel-label">Ouvertures</p>
+              </div>
+              <div class="bo-funnel-step">
+                <p class="bo-funnel-value">${bounce}</p>
+                <p class="bo-funnel-label">Rebond <span class="bo-funnel-hint">ouvert, rien rempli</span></p>
+                <p class="bo-funnel-pct">${pct(bounce)}</p>
+              </div>
+              <div class="bo-funnel-step">
+                <p class="bo-funnel-value">${abandon}</p>
+                <p class="bo-funnel-label">Abandon <span class="bo-funnel-hint">rempli, non envoyé</span></p>
+                <p class="bo-funnel-pct">${pct(abandon)}</p>
+              </div>
+              <div class="bo-funnel-step bo-funnel-step-success">
+                <p class="bo-funnel-value">${counts.submit}</p>
+                <p class="bo-funnel-label">Finalisés</p>
+                <p class="bo-funnel-pct">${pct(counts.submit)}</p>
+              </div>
+            </div>
+          </div>`;
+      })
+      .join("");
   };
 
   const sinceIso = () => {
@@ -152,10 +186,7 @@
     let viewsQuery = client.from("page_views").select("page_path, created_at, duration_seconds");
     if (since) viewsQuery = viewsQuery.gte("created_at", since);
 
-    let formsQuery = client
-      .from("form_events")
-      .select("event_type, created_at")
-      .eq("form_name", "devis");
+    let formsQuery = client.from("form_events").select("form_name, event_type, created_at");
     if (since) formsQuery = formsQuery.gte("created_at", since);
 
     const [viewsResult, formsResult] = await Promise.all([
