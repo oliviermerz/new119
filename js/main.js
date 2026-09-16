@@ -61,11 +61,34 @@
     revealTargets.forEach((el) => el.classList.add("is-visible"));
   }
 
+  /* Supabase (voir supabase/schema.sql) : formulaire de devis + suivi d'entonnoir anonyme. */
+  const SUPABASE_URL = "https://curpwqvxsojzgwagwvox.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_rPdju156yStjHFMV8PxBiw_Fk6hSdtg";
+
+  const sendFormEvent = (eventType) => {
+    fetch(`${SUPABASE_URL}/rest/v1/form_events`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        Prefer: "return=minimal",
+      },
+      body: JSON.stringify({
+        form_name: "devis",
+        event_type: eventType,
+        page_path: window.location.pathname,
+      }),
+      keepalive: true,
+    }).catch(() => {});
+  };
+
   /* Contact modal */
   const modalOverlay = document.getElementById("modal-overlay");
   const modalClose = document.getElementById("modal-close");
   const openTriggers = document.querySelectorAll(".js-open-modal");
   let lastFocused = null;
+  let formStarted = false;
 
   const getFocusable = () =>
     modalOverlay.querySelectorAll('a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
@@ -77,6 +100,8 @@
     document.body.style.overflow = "hidden";
     const focusable = getFocusable();
     if (focusable.length) focusable[0].focus();
+    formStarted = false;
+    sendFormEvent("open");
   };
   const closeModal = () => {
     modalOverlay.hidden = true;
@@ -110,11 +135,18 @@
 
   /* Contact form: submits to Supabase (table demandes_devis, see supabase/schema.sql).
      Falls back to a mailto with the pre-filled request if the insert fails. */
-  const SUPABASE_URL = "https://curpwqvxsojzgwagwvox.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_rPdju156yStjHFMV8PxBiw_Fk6hSdtg";
-
   const form = document.getElementById("contact-form");
   const status = document.getElementById("form-status");
+
+  form.addEventListener(
+    "input",
+    () => {
+      if (formStarted) return;
+      formStarted = true;
+      sendFormEvent("start");
+    },
+    { capture: true }
+  );
 
   const mailtoFallback = (data) => {
     const bodyLines = [
@@ -153,6 +185,7 @@
       form.reportValidity();
       return;
     }
+    sendFormEvent("submit");
     const data = Object.fromEntries(new FormData(form).entries());
     const payload = {
       prenom: data.prenom,

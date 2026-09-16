@@ -82,3 +82,30 @@ create policy "Lecture des vues de page reservee aux admins connectes"
   for select
   to authenticated
   using (true);
+
+-- Le 119 — entonnoir des formulaires (ouverture / debut de saisie / envoi)
+-- Chaque etape est un evenement independant ; le tableau de bord calcule le
+-- rebond (open sans start) et l'abandon (start sans submit) par soustraction.
+
+create table if not exists public.form_events (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+
+  form_name text not null,
+  event_type text not null check (event_type in ('open', 'start', 'submit')),
+  page_path text
+);
+
+alter table public.form_events enable row level security;
+
+create policy "Autoriser l'insertion publique des evenements de formulaire"
+  on public.form_events
+  for insert
+  to anon
+  with check (true);
+
+create policy "Lecture des evenements de formulaire reservee aux admins connectes"
+  on public.form_events
+  for select
+  to authenticated
+  using (true);

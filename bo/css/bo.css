@@ -307,6 +307,29 @@ h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
 
 .bo-chart svg { display: block; }
 
+.bo-funnel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.bo-funnel-step {
+  border: 1px solid var(--bo-border);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+}
+
+.bo-funnel-step-success { border-color: var(--bo-accent); }
+
+.bo-funnel-value { margin: 0; font-size: 26px; font-weight: 700; }
+
+.bo-funnel-label { margin: 4px 0 0; font-size: 13px; color: var(--bo-text); }
+
+.bo-funnel-hint { display: block; font-size: 11px; color: var(--bo-muted); font-weight: 400; }
+
+.bo-funnel-pct { margin: 6px 0 0; font-size: 12px; color: var(--bo-accent); font-weight: 600; }
+
 .bo-table { width: 100%; border-collapse: collapse; font-size: 14px; }
 .bo-table th, .bo-table td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--bo-border); }
 .bo-table th { font-size: 12px; color: var(--bo-muted); font-weight: 600; }

@@ -12,6 +12,13 @@
   const statDuration = document.getElementById("stat-duration");
   const chartEl = document.getElementById("chart-views");
   const topPagesBody = document.getElementById("top-pages-body");
+  const funnelOpen = document.getElementById("funnel-open");
+  const funnelBounce = document.getElementById("funnel-bounce");
+  const funnelBouncePct = document.getElementById("funnel-bounce-pct");
+  const funnelAbandon = document.getElementById("funnel-abandon");
+  const funnelAbandonPct = document.getElementById("funnel-abandon-pct");
+  const funnelSubmit = document.getElementById("funnel-submit");
+  const funnelSubmitPct = document.getElementById("funnel-submit-pct");
 
   const esc = (value) =>
     String(value ?? "").replace(/[&<>"']/g, (c) => ({
@@ -114,29 +121,60 @@
     statDuration.textContent = fmtDuration(avgDuration);
   };
 
+  const renderFunnel = (rows) => {
+    const counts = { open: 0, start: 0, submit: 0 };
+    rows.forEach((r) => {
+      if (counts[r.event_type] !== undefined) counts[r.event_type] += 1;
+    });
+
+    const bounce = Math.max(counts.open - counts.start, 0);
+    const abandon = Math.max(counts.start - counts.submit, 0);
+    const pct = (n) => (counts.open ? `${Math.round((n / counts.open) * 100)}% des ouvertures` : "");
+
+    funnelOpen.textContent = counts.open;
+    funnelBounce.textContent = bounce;
+    funnelBouncePct.textContent = pct(bounce);
+    funnelAbandon.textContent = abandon;
+    funnelAbandonPct.textContent = pct(abandon);
+    funnelSubmit.textContent = counts.submit;
+    funnelSubmitPct.textContent = pct(counts.submit);
+  };
+
+  const sinceIso = () => {
+    const days = Number(periodSelect.value);
+    return days > 0 ? new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString() : null;
+  };
+
   const loadStats = async () => {
     stateEl.textContent = "Chargement…";
+    const since = sinceIso();
 
-    let query = client.from("page_views").select("page_path, created_at, duration_seconds");
+    let viewsQuery = client.from("page_views").select("page_path, created_at, duration_seconds");
+    if (since) viewsQuery = viewsQuery.gte("created_at", since);
 
-    const days = Number(periodSelect.value);
-    if (days > 0) {
-      const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
-      query = query.gte("created_at", since);
-    }
+    let formsQuery = client
+      .from("form_events")
+      .select("event_type, created_at")
+      .eq("form_name", "devis");
+    if (since) formsQuery = formsQuery.gte("created_at", since);
 
-    const { data, error } = await query.order("created_at", { ascending: true });
+    const [viewsResult, formsResult] = await Promise.all([
+      viewsQuery.order("created_at", { ascending: true }),
+      formsQuery,
+    ]);
 
-    if (error) {
-      stateEl.textContent = "Erreur lors du chargement des statistiques : " + error.message;
+    if (viewsResult.error) {
+      stateEl.textContent = "Erreur lors du chargement des statistiques : " + viewsResult.error.message;
       return;
     }
 
-    const rows = data || [];
+    const rows = viewsResult.data || [];
     stateEl.textContent = `${rows.length} vue${rows.length > 1 ? "s" : ""} sur la période sélectionnée`;
     renderStats(rows);
     renderChart(rows);
     renderTopPages(rows);
+
+    if (!formsResult.error) renderFunnel(formsResult.data || []);
   };
 
   logoutBtn.addEventListener("click", async () => {
