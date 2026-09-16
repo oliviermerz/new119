@@ -122,12 +122,26 @@
     statDuration.textContent = fmtDuration(avgDuration);
   };
 
+  const emptyFunnel = () => ({ open: 0, start: 0, submit: 0 });
+  const deriveFunnel = (counts) => ({
+    open: counts.open,
+    bounce: Math.max(counts.open - counts.start, 0),
+    abandon: Math.max(counts.start - counts.submit, 0),
+    submit: counts.submit,
+  });
+
   const renderFunnel = (rows) => {
     const byForm = new Map();
     rows.forEach((r) => {
-      const counts = byForm.get(r.form_name) || { open: 0, start: 0, submit: 0 };
-      if (counts[r.event_type] !== undefined) counts[r.event_type] += 1;
-      byForm.set(r.form_name, counts);
+      if (!byForm.has(r.form_name)) byForm.set(r.form_name, { total: emptyFunnel(), byPage: new Map() });
+      const group = byForm.get(r.form_name);
+
+      if (group.total[r.event_type] !== undefined) group.total[r.event_type] += 1;
+
+      const page = r.page_path || "—";
+      const pageCounts = group.byPage.get(page) || emptyFunnel();
+      if (pageCounts[r.event_type] !== undefined) pageCounts[r.event_type] += 1;
+      group.byPage.set(page, pageCounts);
     });
 
     if (!byForm.size) {
@@ -135,40 +149,70 @@
       return;
     }
 
+    const pct = (n, base) => (base ? `${Math.round((n / base) * 100)}% des ouvertures` : "");
+
     const forms = Array.from(byForm.entries()).sort((a, b) =>
       formLabel(a[0]).localeCompare(formLabel(b[0]))
     );
 
     formsFunnelsEl.innerHTML = forms
-      .map(([formName, counts]) => {
-        const bounce = Math.max(counts.open - counts.start, 0);
-        const abandon = Math.max(counts.start - counts.submit, 0);
-        const pct = (n) => (counts.open ? `${Math.round((n / counts.open) * 100)}% des ouvertures` : "");
+      .map(([formName, group]) => {
+        const f = deriveFunnel(group.total);
+
+        const pageRows = Array.from(group.byPage.entries())
+          .map(([page, counts]) => [page, deriveFunnel(counts)])
+          .sort((a, b) => b[1].open - a[1].open);
+
+        const pageRowsHtml = pageRows
+          .map(
+            ([page, pf]) => `
+            <tr>
+              <td>${esc(page)}</td>
+              <td>${pf.open}</td>
+              <td>${pf.bounce}</td>
+              <td>${pf.abandon}</td>
+              <td>${pf.submit}</td>
+            </tr>`
+          )
+          .join("");
 
         return `
           <div class="bo-form-group">
             <h3>${esc(formLabel(formName))}</h3>
             <div class="bo-funnel">
               <div class="bo-funnel-step">
-                <p class="bo-funnel-value">${counts.open}</p>
+                <p class="bo-funnel-value">${f.open}</p>
                 <p class="bo-funnel-label">Ouvertures</p>
               </div>
               <div class="bo-funnel-step">
-                <p class="bo-funnel-value">${bounce}</p>
+                <p class="bo-funnel-value">${f.bounce}</p>
                 <p class="bo-funnel-label">Rebond <span class="bo-funnel-hint">ouvert, rien rempli</span></p>
-                <p class="bo-funnel-pct">${pct(bounce)}</p>
+                <p class="bo-funnel-pct">${pct(f.bounce, f.open)}</p>
               </div>
               <div class="bo-funnel-step">
-                <p class="bo-funnel-value">${abandon}</p>
+                <p class="bo-funnel-value">${f.abandon}</p>
                 <p class="bo-funnel-label">Abandon <span class="bo-funnel-hint">rempli, non envoyé</span></p>
-                <p class="bo-funnel-pct">${pct(abandon)}</p>
+                <p class="bo-funnel-pct">${pct(f.abandon, f.open)}</p>
               </div>
               <div class="bo-funnel-step bo-funnel-step-success">
-                <p class="bo-funnel-value">${counts.submit}</p>
+                <p class="bo-funnel-value">${f.submit}</p>
                 <p class="bo-funnel-label">Finalisés</p>
-                <p class="bo-funnel-pct">${pct(counts.submit)}</p>
+                <p class="bo-funnel-pct">${pct(f.submit, f.open)}</p>
               </div>
             </div>
+
+            <table class="bo-table bo-form-page-table">
+              <thead>
+                <tr>
+                  <th>Page</th>
+                  <th>Ouvertures</th>
+                  <th>Rebond</th>
+                  <th>Abandon</th>
+                  <th>Finalisés</th>
+                </tr>
+              </thead>
+              <tbody>${pageRowsHtml}</tbody>
+            </table>
           </div>`;
       })
       .join("");
@@ -186,7 +230,7 @@
     let viewsQuery = client.from("page_views").select("page_path, created_at, duration_seconds");
     if (since) viewsQuery = viewsQuery.gte("created_at", since);
 
-    let formsQuery = client.from("form_events").select("form_name, event_type, created_at");
+    let formsQuery = client.from("form_events").select("form_name, event_type, page_path, created_at");
     if (since) formsQuery = formsQuery.gte("created_at", since);
 
     const [viewsResult, formsResult] = await Promise.all([
