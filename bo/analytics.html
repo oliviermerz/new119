@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Statistiques — Back-office Le 119</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="/bo/css/bo.css">
+</head>
+<body>
+
+<header class="bo-header">
+  <div class="bo-header-inner">
+    <p class="bo-header-title">Le 119 — Back-office</p>
+    <nav class="bo-tabs" aria-label="Navigation back-office">
+      <a href="/bo/demandes.html">Demandes de devis</a>
+      <a href="/bo/analytics.html" class="is-active">Statistiques</a>
+    </nav>
+    <div class="bo-header-actions">
+      <span class="bo-header-user" id="admin-email"></span>
+      <button type="button" class="bo-btn bo-btn-outline" id="logout-btn">Déconnexion</button>
+    </div>
+  </div>
+</header>
+
+<main class="bo-main">
+  <div class="bo-main-head">
+    <div>
+      <h1>Statistiques de fréquentation</h1>
+      <p class="bo-count" id="analytics-state">Chargement…</p>
+    </div>
+    <div class="bo-toolbar">
+      <select id="period-select" aria-label="Période">
+        <option value="7">7 derniers jours</option>
+        <option value="30" selected>30 derniers jours</option>
+        <option value="90">90 derniers jours</option>
+        <option value="0">Depuis le début</option>
+      </select>
+      <button type="button" class="bo-btn bo-btn-outline" id="refresh-btn">Actualiser</button>
+    </div>
+  </div>
+
+  <div class="bo-stats-grid">
+    <div class="bo-stat-tile">
+      <p class="bo-stat-value" id="stat-views">—</p>
+      <p class="bo-stat-label">Vues de page</p>
+    </div>
+    <div class="bo-stat-tile">
+      <p class="bo-stat-value" id="stat-pages">—</p>
+      <p class="bo-stat-label">Pages différentes vues</p>
+    </div>
+    <div class="bo-stat-tile">
+      <p class="bo-stat-value" id="stat-duration">—</p>
+      <p class="bo-stat-label">Temps moyen sur une page</p>
+    </div>
+  </div>
+
+  <section class="bo-panel">
+    <h2>Vues par jour</h2>
+    <div id="chart-views" class="bo-chart"></div>
+  </section>
+
+  <section class="bo-panel">
+    <h2>Pages les plus visitées</h2>
+    <table class="bo-table" id="top-pages-table">
+      <thead>
+        <tr>
+          <th>Page</th>
+          <th>Vues</th>
+          <th>Temps moyen</th>
+        </tr>
+      </thead>
+      <tbody id="top-pages-body"></tbody>
+    </table>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/bo/js/supabase-client.js"></script>
+<script src="/bo/js/stats.js"></script>
+</body>
+</html>

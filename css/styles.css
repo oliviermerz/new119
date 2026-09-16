@@ -210,8 +210,8 @@ h3 { font-size: clamp(19px, 2vw, 23px); line-height: 1.15; }
 .header-actions .btn-accent {
   text-align: right;
   font-weight: 700;
-  font-size: 9px;
-  line-height: 10px;
+  font-size: 13.5px;
+  line-height: 15px;
   letter-spacing: 0.01em;
   color: #FFFFFF;
 }
@@ -1234,8 +1234,9 @@ h3 { font-size: clamp(19px, 2vw, 23px); line-height: 1.15; }
   margin: 0 0 13px;
 }
 #reviews .btn.btn-outline { margin-bottom: 16px; }
-.reviews-rating { font-size: 13px; color: var(--color-muted); }
-.reviews-rating strong { color: var(--color-text); font-family: var(--font-display); font-size: 18px; }
+.reviews-rating { display: flex; flex-direction: column; align-items: flex-start; font-size: 13px; color: var(--color-muted); }
+.reviews-rating strong { color: var(--color-accent); font-family: var(--font-body); font-size: 55px; font-weight: 400; }
+.reviews-rating-source { font-size: 13px; }
 
 .reviews-grid {
   display: grid;
@@ -1405,6 +1406,30 @@ h3 { font-size: clamp(19px, 2vw, 23px); line-height: 1.15; }
 .footer-contact a { display: flex; align-items: center; gap: 9px; }
 .footer-contact .btn { margin-top: 8px; align-self: flex-start; }
 
+.footer-seo {
+  padding: 24px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+.footer-seo-title {
+  font-family: var(--font-display);
+  color: var(--color-onDark);
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.footer-seo-subtitle {
+  font-family: var(--font-body);
+  color: var(--color-accent);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.footer-seo p { font-size: 12.5px; line-height: 1.7; margin-bottom: 12px; }
+.footer-seo p:last-child { margin-bottom: 0; }
+.footer-seo strong { color: var(--color-onDark); font-weight: 600; }
+
 .footer-bottom {
   display: flex;
   flex-direction: column;
@@ -1489,6 +1514,41 @@ h3 { font-size: clamp(19px, 2vw, 23px); line-height: 1.15; }
   .form-row { grid-template-columns: 1fr 1fr; }
   .form-row-3 { grid-template-columns: repeat(3, 1fr); }
   .form-row-4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* ---------- Plan du site ---------- */
+.sitemap-section { padding: 8px 0 80px; }
+.sitemap-grid { display: grid; grid-template-columns: 1fr; gap: 44px; }
+.sitemap-col h2 {
+  font-size: 18px;
+  font-weight: 600;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+.sitemap-col ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 11px; }
+.sitemap-col > ul > li > a { font-size: 14px; font-weight: 600; color: var(--color-text); }
+.sitemap-col a:hover { color: var(--color-accent); }
+.sitemap-col li ul { margin: 10px 0 0 16px; gap: 9px; }
+.sitemap-col li ul a { font-size: 13px; font-weight: 400; color: var(--color-muted); }
+.sitemap-col li ul a:hover { color: var(--color-accent); }
+.sitemap-soon { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--color-muted); }
+.sitemap-soon-tag {
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-muted);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 3px 9px;
+}
+
+@media (min-width: 640px) {
+  .sitemap-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1024px) {
+  .sitemap-grid { grid-template-columns: repeat(3, 1fr); gap: 48px 56px; }
 }
 
 /* ---------- Scroll reveal ---------- */
@@ -1746,7 +1806,32 @@ h3 { font-size: clamp(19px, 2vw, 23px); line-height: 1.15; }
 }
 
 /* ---------- Guide (hub des conseils) ---------- */
-.guide-grid-section { padding: 40px 0 8px; }
+.guide-grid-section { padding: 40px 0 8px; scroll-margin-top: calc(var(--header-h) + 16px); }
+.guide-grid-section-entreprise { border-top: 1px solid var(--color-border); padding-top: 48px; }
+.guide-section-header { max-width: 720px; margin-bottom: 28px; }
+.guide-section-header .article-lede { margin-bottom: 0; }
+
+.guide-subnav { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin: 22px 0 30px; text-align: center; }
+.guide-subnav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 32px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text);
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
+.guide-subnav-link .icon { width: 32px; height: 32px; color: var(--color-accent); flex-shrink: 0; transition: color var(--transition); }
+.guide-subnav-link:hover, .guide-subnav-link:focus-visible {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff;
+}
+.guide-subnav-link:hover .icon, .guide-subnav-link:focus-visible .icon { color: #fff; }
 .guide-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -1809,6 +1894,8 @@ h3 { font-size: clamp(19px, 2vw, 23px); line-height: 1.15; }
 @media (min-width: 1024px) {
   .guide-grid-section { padding: 56px 0 16px; }
   .guide-grid { grid-template-columns: repeat(3, 1fr); gap: 52px 40px; }
+  .guide-grid-section-entreprise { padding-top: 64px; }
+  .guide-section-header { margin-bottom: 36px; }
 }
 
 /* ---------- Boutons flottants (Devis / WhatsApp / Calendly) ---------- */

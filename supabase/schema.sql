@@ -41,3 +41,44 @@ create policy "Autoriser l'insertion publique de demandes"
   for insert
   to anon
   with check (true);
+
+-- Le 119 — vues de page anonymes (analytics interne)
+-- Pas de cookies, pas d'IP stockée, pas d'identifiant qui suit un visiteur
+-- d'une page à l'autre : chaque vue est un événement indépendant.
+
+create table if not exists public.page_views (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+
+  page_path text not null,
+  referrer text,
+  user_agent text,
+
+  -- Renseigné a posteriori par le script de suivi quand le visiteur quitte la page.
+  duration_seconds integer
+);
+
+alter table public.page_views enable row level security;
+
+-- Le script de suivi (js/analytics.js) peut créer une ligne à l'ouverture de la page...
+create policy "Autoriser l'insertion publique des vues de page"
+  on public.page_views
+  for insert
+  to anon
+  with check (true);
+
+-- ...puis la compléter avec la durée passée, mais uniquement sur une ligne
+-- récente (moins d'1h) pour limiter les abus sur d'anciennes lignes.
+create policy "Autoriser la mise a jour publique des vues recentes"
+  on public.page_views
+  for update
+  to anon
+  using (created_at > now() - interval '1 hour')
+  with check (created_at > now() - interval '1 hour');
+
+-- Lecture réservée aux admins connectés (back-office).
+create policy "Lecture des vues de page reservee aux admins connectes"
+  on public.page_views
+  for select
+  to authenticated
+  using (true);

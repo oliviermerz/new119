@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /bo/
 
 Sitemap: https://www.le119-valenciennes.fr/sitemap.xml

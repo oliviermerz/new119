@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demandes de devis — Back-office Le 119</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="/bo/css/bo.css">
+</head>
+<body>
+
+<header class="bo-header">
+  <div class="bo-header-inner">
+    <p class="bo-header-title">Le 119 — Back-office</p>
+    <nav class="bo-tabs" aria-label="Navigation back-office">
+      <a href="/bo/demandes.html" class="is-active">Demandes de devis</a>
+      <a href="/bo/analytics.html">Statistiques</a>
+    </nav>
+    <div class="bo-header-actions">
+      <span class="bo-header-user" id="admin-email"></span>
+      <button type="button" class="bo-btn bo-btn-outline" id="logout-btn">Déconnexion</button>
+    </div>
+  </div>
+</header>
+
+<main class="bo-main">
+  <div class="bo-main-head">
+    <div>
+      <h1>Demandes de devis</h1>
+      <p class="bo-count" id="demandes-count"></p>
+    </div>
+    <div class="bo-toolbar">
+      <input type="search" id="search-input" placeholder="Rechercher (nom, email, type…)" aria-label="Rechercher une demande">
+      <button type="button" class="bo-btn bo-btn-outline" id="refresh-btn">Actualiser</button>
+    </div>
+  </div>
+
+  <p class="bo-state" id="demandes-state">Chargement…</p>
+  <div class="bo-list" id="demandes-list"></div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/bo/js/supabase-client.js"></script>
+<script src="/bo/js/demandes.js"></script>
+</body>
+</html>
