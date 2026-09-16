@@ -9,19 +9,12 @@
 //   BREVO_SENDER_NAME   nom affiche comme expediteur
 //   WEBHOOK_SECRET      secret partage avec le Database Webhook (anti-abus)
 //
-// Pour changer le texte de l'email, modifiez EMAIL_SUBJECT / EMAIL_BODY
-// ci-dessous puis redeployez : `supabase functions deploy send-devis-thankyou`.
+// Le texte et le HTML des deux versions d'email (voir templates.ts) sont
+// choisis automatiquement selon ce que le prospect a rempli dans le
+// formulaire. Pour les modifier, editez templates.ts puis redeployez :
+// `supabase functions deploy send-devis-thankyou`.
 
-const EMAIL_SUBJECT = "Merci pour votre demande de devis";
-
-const EMAIL_BODY = `Bonjour {{prenom}} {{nom}}, ceci est un test {{date_evenement}}, {{type_evenement}}`;
-
-function renderTemplate(template: string, record: Record<string, unknown>): string {
-  return template.replace(/\{\{(\w+)\}\}/g, (_, key: string) => {
-    const value = record[key];
-    return value === null || value === undefined ? "" : String(value);
-  });
-}
+import { buildDevisThankYouEmail } from "./templates.ts";
 
 Deno.serve(async (req) => {
   if (req.method !== "POST") {
@@ -55,6 +48,7 @@ Deno.serve(async (req) => {
   }
 
   const recipientName = [record.prenom, record.nom].filter(Boolean).join(" ") || undefined;
+  const { subject, html, text } = buildDevisThankYouEmail(record);
 
   const brevoRes = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
@@ -66,8 +60,9 @@ Deno.serve(async (req) => {
     body: JSON.stringify({
       sender: { email: senderEmail, name: senderName },
       to: [{ email: record.email, name: recipientName }],
-      subject: renderTemplate(EMAIL_SUBJECT, record),
-      textContent: renderTemplate(EMAIL_BODY, record),
+      subject,
+      htmlContent: html,
+      textContent: text,
     }),
   });
 
