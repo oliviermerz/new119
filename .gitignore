@@ -8,3 +8,7 @@ Le119_maquette_reference_desktop.jpg
 # OS / editor cruft
 .DS_Store
 Thumbs.db
+
+# Vercel
+.vercel
+.env.local
