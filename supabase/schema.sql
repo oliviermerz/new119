@@ -29,8 +29,25 @@ create table if not exists public.demandes_devis (
   message text,
 
   -- Page d'origine du formulaire (ex. /index.html, /conseils/decoration-salle-mariage.html)
-  source_page text
+  -- ou, pour les demandes importees depuis une messagerie, un repere du type "email:1001salles"
+  source_page text,
+
+  -- Origine de la demande : 'site' (formulaire du site, valeur par defaut) ou un identifiant
+  -- de plateforme partenaire ('1001salles', 'mariages.net') pour les demandes importees
+  -- automatiquement depuis Gmail. Sert a desactiver l'email de remerciement pour ces dernieres
+  -- (voir supabase/functions/send-devis-thankyou), la plateforme d'origine ayant deja envoye
+  -- son propre accuse de reception.
+  lead_source text not null default 'site',
+
+  -- Identifiant du message source (ex. "gmail:<id>") pour les demandes importees depuis une
+  -- messagerie : evite de creer un doublon si le meme email est retraite (voir
+  -- scripts/leads/parse-lead-email.mjs). Nul pour les demandes soumises via le formulaire.
+  source_message_id text
 );
+
+create unique index if not exists demandes_devis_source_message_id_key
+  on public.demandes_devis (source_message_id)
+  where source_message_id is not null;
 
 alter table public.demandes_devis enable row level security;
 
@@ -109,3 +126,48 @@ create policy "Lecture des evenements de formulaire reservee aux admins connecte
   for select
   to authenticated
   using (true);
+
+-- Le 119 — emails transactionnels editables depuis le back-office (bo/emails.html).
+-- html_content ne contient QUE le fragment de contenu editable (pas la mise en page
+-- avec logo/pied de page, qui reste fixe cote code, voir supabase/functions/send-devis-thankyou).
+-- Champs de fusion disponibles dans subject/html_content : {{prenom}}, {{type_evenement}},
+-- {{date_evenement}}, {{options_block}}, {{message_block}} — voir le code d'envoi pour la liste
+-- exacte selon l'email. is_active permet de mettre un email en pause sans le supprimer.
+
+create table if not exists public.email_templates (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+
+  slug text not null unique,
+  name text not null,
+  business_rule text,
+  subject text not null,
+  html_content text not null,
+  is_active boolean not null default true
+);
+
+alter table public.email_templates enable row level security;
+
+create policy "Gestion des emails reservee aux admins connectes"
+  on public.email_templates
+  for all
+  to authenticated
+  using (true)
+  with check (true);
+
+create or replace function public.set_updated_at()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+drop trigger if exists email_templates_set_updated_at on public.email_templates;
+create trigger email_templates_set_updated_at
+  before update on public.email_templates
+  for each row
+  execute function public.set_updated_at();

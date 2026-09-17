@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Emails — Back-office Le 119</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="/bo/css/bo.css">
+</head>
+<body>
+
+<header class="bo-header">
+  <div class="bo-header-inner">
+    <p class="bo-header-title">Le 119 — Back-office</p>
+    <nav class="bo-tabs" aria-label="Navigation back-office">
+      <a href="/bo/demandes.html">Demandes de devis</a>
+      <a href="/bo/analytics.html">Statistiques</a>
+      <a href="/bo/emails.html" class="is-active">Emails</a>
+    </nav>
+    <div class="bo-header-actions">
+      <span class="bo-header-user" id="admin-email"></span>
+      <button type="button" class="bo-btn bo-btn-outline" id="logout-btn">Déconnexion</button>
+    </div>
+  </div>
+</header>
+
+<main class="bo-main">
+  <div class="bo-main-head">
+    <div>
+      <h1>Emails</h1>
+      <p class="bo-count" id="templates-count"></p>
+    </div>
+    <div class="bo-toolbar">
+      <button type="button" class="bo-btn bo-btn-outline" id="refresh-btn">Actualiser</button>
+    </div>
+  </div>
+
+  <p class="bo-state" id="templates-state">Chargement…</p>
+  <div class="bo-list" id="templates-list"></div>
+
+  <section class="bo-editor" id="editor">
+    <div class="bo-editor-head">
+      <h2 id="editor-title">Modifier l'email</h2>
+      <div class="bo-toolbar">
+        <label class="bo-switch">
+          <input type="checkbox" id="editor-active-toggle">
+          <span class="bo-switch-track" aria-hidden="true"></span>
+        </label>
+        <button type="button" class="bo-btn bo-btn-outline" id="editor-close-btn">Fermer</button>
+      </div>
+    </div>
+
+    <div class="bo-field">
+      <label for="editor-name">Nom (usage interne)</label>
+      <input type="text" id="editor-name">
+    </div>
+
+    <div class="bo-field">
+      <label for="editor-rule">Règle de gestion — quand cet email part-il ?</label>
+      <div class="bo-rule-box">
+        <textarea id="editor-rule" rows="3" style="width:100%;border:none;background:transparent;padding:0;font:inherit;resize:vertical;"></textarea>
+      </div>
+    </div>
+
+    <div class="bo-field">
+      <label for="editor-subject">Objet de l'email</label>
+      <input type="text" id="editor-subject">
+    </div>
+
+    <div class="bo-field">
+      <label>Contenu</label>
+      <div class="bo-editor-columns">
+        <div>
+          <div class="bo-editor-toolbar">
+            <button type="button" data-cmd="bold" title="Gras"><strong>G</strong></button>
+            <button type="button" data-cmd="italic" title="Italique"><em>I</em></button>
+            <button type="button" data-cmd="underline" title="Souligné"><u>S</u></button>
+            <button type="button" data-cmd="insertUnorderedList" title="Liste à puces">• Liste</button>
+            <button type="button" data-cmd="insertOrderedList" title="Liste numérotée">1. Liste</button>
+            <button type="button" data-cmd="createLink" title="Insérer un lien">Lien</button>
+            <button type="button" data-cmd="removeFormat" title="Effacer la mise en forme">Effacer</button>
+            <button type="button" id="toggle-source-btn" class="bo-editor-toolbar-right">Voir le code HTML</button>
+          </div>
+          <div class="bo-editor-surface" id="editor-surface" contenteditable="true"></div>
+          <textarea class="bo-editor-source" id="editor-source" spellcheck="false"></textarea>
+          <p class="bo-editor-tokens">Champs disponibles : <code>{{prenom}}</code><code>{{type_evenement}}</code><code>{{date_evenement}}</code><code>{{options_block}}</code><code>{{message_block}}</code></p>
+        </div>
+        <div>
+          <p class="bo-count" style="margin-bottom:6px;">Aperçu</p>
+          <iframe class="bo-editor-preview" id="editor-preview" title="Aperçu de l'email"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <p class="bo-state" id="editor-state" hidden></p>
+
+    <div class="bo-editor-actions">
+      <button type="button" class="bo-btn bo-btn-accent" id="editor-save-btn">Enregistrer</button>
+      <button type="button" class="bo-btn bo-btn-outline" id="editor-cancel-btn">Annuler</button>
+    </div>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/bo/js/supabase-client.js"></script>
+<script src="/bo/js/emails.js"></script>
+</body>
+</html>
